@@ -93,6 +93,18 @@ func TestTimerZero(t *testing.T) {
 	}
 }
 
+func TestTimerClear(t *testing.T) {
+	tm := NewTimer()
+	tm.Time(func() { time.Sleep(10e6) })
+	if max := tm.Max(); 5e6 > max || max > 15e6 {
+		t.Errorf("tm.Max(): 5e6 > %v || %v > 15e6\n", max, max)
+	}
+	tm.Clear()
+	if tm.Count() > 0 {
+		t.Errorf("expected=0, got=%d", tm.Count())
+	}
+}
+
 func ExampleGetOrRegisterTimer() {
 	m := "account.create.latency"
 	t := GetOrRegisterTimer(m, nil)

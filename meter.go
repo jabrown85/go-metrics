@@ -18,6 +18,7 @@ type Meter interface {
 	RateMean() float64
 	Snapshot() Meter
 	Stop()
+	Clear()
 }
 
 // GetOrRegisterMeter returns an existing Meter or constructs and registers a
@@ -67,6 +68,9 @@ type MeterSnapshot struct {
 	rate1, rate5, rate15, rateMean uint64
 }
 
+// Clear is a no-op.
+func (m *MeterSnapshot) Clear() {}
+
 // Count returns the count of events at the time the snapshot was taken.
 func (m *MeterSnapshot) Count() int64 { return m.count }
 
@@ -99,6 +103,9 @@ func (m *MeterSnapshot) Stop() {}
 
 // NilMeter is a no-op Meter.
 type NilMeter struct{}
+
+// Clear is a no-op.
+func (NilMeter) Clear() {}
 
 // Count is a no-op.
 func (NilMeter) Count() int64 { return 0 }
@@ -149,6 +156,18 @@ func (m *StandardMeter) Stop() {
 		delete(arbiter.meters, m)
 		arbiter.Unlock()
 	}
+}
+
+// Clear resets the meter
+func (m *StandardMeter) Clear() {
+	arbiter.Lock()
+	defer arbiter.Unlock()
+
+	m.snapshot = &MeterSnapshot{}
+	m.a1 = NewEWMA1()
+	m.a5 = NewEWMA5()
+	m.a15 = NewEWMA15()
+	m.startTime = time.Now()
 }
 
 // Count returns the number of events recorded.

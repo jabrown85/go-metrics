@@ -110,3 +110,13 @@ func TestMeterZero(t *testing.T) {
 		t.Errorf("m.Count(): 0 != %v\n", count)
 	}
 }
+
+func TestMeterClear(t *testing.T) {
+	m := NewMeter()
+	m.Mark(3456)
+	m.Clear()
+
+	if m.Count() > 0 {
+		t.Errorf("expected=0, got=%d", m.Count())
+	}
+}
