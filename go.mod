@@ -1,4 +1,4 @@
-module github.com/heroku/go-metrics
+module github.com/rcrowley/go-metrics
 
 go 1.17
 
